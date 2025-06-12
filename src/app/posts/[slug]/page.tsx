@@ -18,7 +18,9 @@ export async function generateMetadata({ params }: PostPageProps) {
   const { slug } = await params
   if (!slug) return { title: 'Post Not Found' }
 
-  const post = await getPostBySlug(slug)
+  // 解码 URL 编码的 slug
+  const decodedSlug = decodeURIComponent(slug)
+  const post = await getPostBySlug(decodedSlug)
   
   if (!post) {
     return {
@@ -41,14 +43,16 @@ export default async function PostPage({ params }: PostPageProps) {
   const { slug } = await params
   if (!slug) return notFound()
 
-  const post = await getPostBySlug(slug)
+  // 解码 URL 编码的 slug
+  const decodedSlug = decodeURIComponent(slug)
+  const post = await getPostBySlug(decodedSlug)
 
   if (!post) {
     notFound()
   }
 
   // 增加浏览量
-  await incrementPostViews(slug)
+  await incrementPostViews(decodedSlug)
 
   // 估算阅读时间（基于字数，平均每分钟 200 字）
   const wordCount = post.content.split(/\s+/).length

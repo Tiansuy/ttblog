@@ -23,8 +23,11 @@ export function PostCard({
   likes,
   publishedAt,
 }: PostCardProps) {
+  // 对 slug 进行 URL 编码以支持中文字符
+  const encodedSlug = encodeURIComponent(slug)
+  
   return (
-    <Link href={`/posts/${slug}`} className="group">
+    <Link href={`/posts/${encodedSlug}`} className="group">
       <Card className="h-full overflow-hidden transition-all duration-200 hover:shadow-lg hover:scale-[1.02]">
         <CardHeader className="p-0">
           <div className="relative overflow-hidden">
