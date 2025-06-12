@@ -1,20 +1,6 @@
 import { supabase } from './supabase';
 import { Post, PostWithTags } from '@/types/database';
-
-// 辅助函数：调用重新验证 API
-async function revalidatePaths(paths: string[]) {
-  try {
-    await fetch('/api/revalidate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ paths }),
-    });
-  } catch (error) {
-    console.error('Error revalidating paths:', error);
-  }
-}
+import { revalidateHomePage, revalidatePostPage, revalidateMultiplePaths } from './revalidate-actions';
 
 export async function getPosts(): Promise<Post[]> {
   const { data, error } = await supabase
@@ -142,7 +128,8 @@ export async function createPost(postData: {
   }
 
   // 重新验证主页和文章详情页
-  await revalidatePaths(['/', `/posts/${postData.slug}`]);
+  await revalidateHomePage();
+  await revalidatePostPage(postData.slug);
 
   return data;
 }
@@ -196,7 +183,7 @@ export async function updatePost(id: string, postData: {
   if (oldPost.slug !== postData.slug) {
     pathsToRevalidate.push(`/posts/${postData.slug}`);
   }
-  await revalidatePaths(pathsToRevalidate);
+  await revalidateMultiplePaths(pathsToRevalidate);
 
   return data;
 }
@@ -226,7 +213,8 @@ export async function deletePost(id: string): Promise<void> {
   }
 
   // 重新验证主页和文章详情页
-  await revalidatePaths(['/', `/posts/${post.slug}`]);
+  await revalidateHomePage();
+  await revalidatePostPage(post.slug);
 }
 
 export async function incrementPostViews(slug: string): Promise<void> {
