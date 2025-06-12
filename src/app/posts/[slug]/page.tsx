@@ -5,6 +5,9 @@ import { format } from 'date-fns'
 import { Eye, Heart, Calendar, Clock, Tag } from 'lucide-react'
 import Image from 'next/image'
 
+// 设置缓存时间为1小时，可以通过 revalidatePath/revalidateTag 手动触发更新
+export const revalidate = 3600;
+
 interface PostPageProps {
   params: Promise<{
     slug: string

@@ -3,6 +3,9 @@ import { getPublishedPosts } from "@/lib/posts"
 import { format } from "date-fns"
 import { Post } from '@/types/database'
 
+// 设置缓存时间为1小时，可以通过 revalidatePath/revalidateTag 手动触发更新
+export const revalidate = 3600;
+
 export default async function Home() {
   let posts: Post[] = [];
   
@@ -38,7 +41,7 @@ export default async function Home() {
                 views={post.views}
                 likes={post.likes}
                 publishedAt={format(new Date(post.published_at), 'yyyy-MM-dd')}
-          />
+              />
             ))}
           </div>
         ) : (

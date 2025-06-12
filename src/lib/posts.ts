@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { Post, PostWithTags } from '@/types/database';
+import { revalidatePath } from 'next/cache';
 
 export async function getPosts(): Promise<Post[]> {
   const { data, error } = await supabase
@@ -31,39 +32,25 @@ export async function getPublishedPosts(): Promise<Post[]> {
 }
 
 export async function getPostsWithTags(): Promise<PostWithTags[]> {
-  try {
-    const { data: posts, error: postsError } = await supabase
-      .from('posts')
-      .select('*')
-      .order('published_at', { ascending: false });
+  const { data, error } = await supabase
+    .from('posts')
+    .select(`
+      *,
+      post_tags:post_tags (
+        tag:tags (
+          id,
+          name
+        )
+      )
+    `)
+    .order('published_at', { ascending: false });
 
-    if (postsError) throw postsError;
-
-    const postsWithTags = await Promise.all((posts || []).map(async (post) => {
-      const { data: postTags, error: tagsError } = await supabase
-        .from('post_tags')
-        .select(`
-          tag_id,
-          tags (
-            id,
-            name
-          )
-        `)
-        .eq('post_id', post.id);
-
-      if (tagsError) throw tagsError;
-
-      return {
-        ...post,
-        post_tags: postTags || []
-      };
-    }));
-
-    return postsWithTags;
-  } catch (error) {
+  if (error) {
     console.error('Error fetching posts with tags:', error);
     throw new Error('Failed to fetch posts with tags');
   }
+
+  return data || [];
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
@@ -130,7 +117,7 @@ export async function createPost(postData: {
       tags: postData.tags,
       status: postData.published ? 'published' : 'draft',
       published_at: postData.published ? new Date().toISOString() : null,
-      author_id: user.id, // 设置author_id
+      author_id: user.id,
     })
     .select()
     .single();
@@ -139,6 +126,10 @@ export async function createPost(postData: {
     console.error('Error creating post:', error);
     throw new Error(`创建文章失败: ${error.message}`);
   }
+
+  // 重新验证主页和文章详情页
+  revalidatePath('/');
+  revalidatePath(`/posts/${postData.slug}`);
 
   return data;
 }
@@ -157,6 +148,12 @@ export async function updatePost(id: string, postData: {
   
   if (!user) {
     throw new Error('用户未登录');
+  }
+
+  // 获取旧的文章数据以获取原来的 slug
+  const oldPost = await getPostById(id);
+  if (!oldPost) {
+    throw new Error('文章不存在');
   }
 
   const { data, error } = await supabase
@@ -181,6 +178,13 @@ export async function updatePost(id: string, postData: {
     throw new Error(`更新文章失败: ${error.message}`);
   }
 
+  // 重新验证主页和新旧文章详情页
+  revalidatePath('/');
+  revalidatePath(`/posts/${oldPost.slug}`);
+  if (oldPost.slug !== postData.slug) {
+    revalidatePath(`/posts/${postData.slug}`);
+  }
+
   return data;
 }
 
@@ -192,6 +196,12 @@ export async function deletePost(id: string): Promise<void> {
     throw new Error('用户未登录');
   }
 
+  // 获取文章数据以获取 slug
+  const post = await getPostById(id);
+  if (!post) {
+    throw new Error('文章不存在');
+  }
+
   const { error } = await supabase
     .from('posts')
     .delete()
@@ -201,6 +211,10 @@ export async function deletePost(id: string): Promise<void> {
     console.error('Error deleting post:', error);
     throw new Error(`删除文章失败: ${error.message}`);
   }
+
+  // 重新验证主页和文章详情页
+  revalidatePath('/');
+  revalidatePath(`/posts/${post.slug}`);
 }
 
 export async function incrementPostViews(slug: string): Promise<void> {
