@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { Menu, User, Settings, HelpCircle, LogOut, Shield, LogIn } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
+import { isAdmin } from "@/lib/admin";
 import { signOut } from "@/lib/auth";
 
 import { cn } from "@/lib/utils";
@@ -19,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function SiteHeader() {
+  const { t } = useTranslation();
   const { user, loading, isAuthenticated } = useAuth();
 
   const handleSignOut = async () => {
@@ -41,26 +44,35 @@ export function SiteHeader() {
               href="/"
               className="transition-colors hover:text-foreground/80 text-foreground"
             >
-              Home
+              {t('site.home')}
             </Link>
             <Link
               href="/posts"
               className="transition-colors hover:text-foreground/80 text-foreground"
             >
-              Posts
+              {t('site.posts')}
             </Link>
-            <Link
-              href="/about"
-              className="transition-colors hover:text-foreground/80 text-foreground"
-            >
-              About
-            </Link>
-            {isAuthenticated && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="transition-colors hover:text-foreground/80 text-foreground">
+                  {t('site.about')}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem asChild>
+                  <Link href="/about">{t('site.aboutSite')}</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/about/me">{t('site.aboutMe')}</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {isAuthenticated && isAdmin(user) && (
               <Link
                 href="/admin"
                 className="transition-colors hover:text-foreground/80 text-foreground"
               >
-                Admin
+                {t('site.admin')}
               </Link>
             )}
           </nav>
@@ -82,7 +94,7 @@ export function SiteHeader() {
                   className="flex items-center gap-1"
                 >
                   <LogOut className="h-3 w-3" />
-                  退出
+                  {t('auth.logout')}
                 </Button>
               </div>
             ) : (
@@ -90,7 +102,7 @@ export function SiteHeader() {
                 <Button variant="outline" size="sm" asChild>
                   <Link href="/login">
                     <LogIn className="h-3 w-3 mr-1" />
-                    登录
+                    {t('auth.login')}
                   </Link>
                 </Button>
               </div>
@@ -100,26 +112,29 @@ export function SiteHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <Menu className="h-4 w-4" />
-                  <span className="sr-only">More options</span>
+                  <span className="sr-only">{t('common.moreOptions')}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px]">
                 <div className="md:hidden">
                   <DropdownMenuItem asChild>
-                    <Link href="/">Home</Link>
+                    <Link href="/">{t('site.home')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/posts">Posts</Link>
+                    <Link href="/posts">{t('site.posts')}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/about">About</Link>
+                    <Link href="/about">{t('site.aboutSite')}</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/about/me">{t('site.aboutMe')}</Link>
                   </DropdownMenuItem>
                   
-                  {isAuthenticated && (
+                  {isAuthenticated && isAdmin(user) && (
                     <DropdownMenuItem asChild>
                       <Link href="/admin">
                         <Shield className="mr-2 h-4 w-4" />
-                        Admin
+                        {t('site.admin')}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -133,14 +148,14 @@ export function SiteHeader() {
                       </div>
                       <DropdownMenuItem onClick={handleSignOut}>
                         <LogOut className="mr-2 h-4 w-4" />
-                        退出登录
+                        {t('auth.logout')}
                       </DropdownMenuItem>
                     </>
                   ) : (
                     <DropdownMenuItem asChild>
                       <Link href="/login">
                         <LogIn className="mr-2 h-4 w-4" />
-                        登录
+                        {t('auth.login')}
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -149,11 +164,11 @@ export function SiteHeader() {
                 
                 <DropdownMenuItem>
                   <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                  <span>{t('common.settings')}</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>Help & Support</span>
+                  <span>{t('common.help')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

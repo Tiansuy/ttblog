@@ -1,6 +1,15 @@
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
+import { isAdmin } from "@/lib/admin"
 import { getPostById } from "@/lib/posts"
-import { notFound } from "next/navigation"
 import { PostForm } from "@/components/admin/post-form"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { ShieldX, ArrowLeft } from "lucide-react"
+import type { Post } from "@/types/database"
 
 interface PostEditPageProps {
   params: Promise<{
@@ -8,17 +17,134 @@ interface PostEditPageProps {
   }>
 }
 
-export default async function PostEditPage({ params }: PostEditPageProps) {
-  const { id } = await params
-  const post = await getPostById(id)
+export default function PostEditPage({ params }: PostEditPageProps) {
+  const { user, loading, isAuthenticated } = useAuth()
+  const router = useRouter()
+  const [post, setPost] = useState<Post | null>(null)
+  const [postLoading, setPostLoading] = useState(true)
+  const [postId, setPostId] = useState<string>("")
+
+  useEffect(() => {
+    const loadParams = async () => {
+      const resolvedParams = await params
+      setPostId(resolvedParams.id)
+    }
+    loadParams()
+  }, [params])
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push(`/login?redirect=/admin/posts/${postId}`)
+    }
+  }, [isAuthenticated, loading, router, postId])
+
+  useEffect(() => {
+    if (postId && isAuthenticated && isAdmin(user)) {
+      const loadPost = async () => {
+        try {
+          const postData = await getPostById(postId)
+          setPost(postData)
+        } catch (error) {
+          console.error('Failed to load post:', error)
+          router.push('/admin')
+        } finally {
+          setPostLoading(false)
+        }
+      }
+      loadPost()
+    }
+  }, [postId, isAuthenticated, user, router])
+
+  if (loading || postLoading) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">加载中...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return null
+  }
+
+  // 检查管理员权限
+  if (!isAdmin(user)) {
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-red-100 dark:bg-red-900/20">
+                <ShieldX className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+              <CardTitle className="text-red-600 dark:text-red-400">权限不足</CardTitle>
+              <CardDescription>
+                您没有编辑文章的权限
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <div className="text-sm text-muted-foreground">
+                <p>当前登录用户：{user?.email}</p>
+                <p>只有管理员可以编辑文章</p>
+              </div>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/')}
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  返回首页
+                </Button>
+                <Button
+                  onClick={() => router.push('/login')}
+                  variant="default"
+                >
+                  切换账户
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
 
   if (!post) {
-    notFound()
+    return (
+      <div className="container mx-auto py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Card className="w-full max-w-md">
+            <CardHeader className="text-center">
+              <CardTitle>文章未找到</CardTitle>
+              <CardDescription>
+                指定的文章不存在或已被删除
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button
+                variant="outline"
+                onClick={() => router.push('/admin')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                返回管理后台
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="container py-8">
-      <PostForm mode="edit" postId={id} />
+      <PostForm mode="edit" postId={postId} />
     </div>
   )
 } 

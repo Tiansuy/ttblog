@@ -121,27 +121,52 @@ export function PostForm({ mode, postId }: PostFormProps) {
         updateDraft('excerpt', excerptToSave)
       }
 
+      // 获取选中标签的名称（为了向后兼容旧的 tags 字段）
+      const selectedTags: string[] = []
+      if (draft.selectedTagIds.length > 0) {
+        try {
+          const { getTags } = await import('@/lib/tags')
+          const allTags = await getTags()
+          const selectedTagNames = allTags
+            .filter(tag => draft.selectedTagIds.includes(tag.id))
+            .map(tag => tag.name)
+          selectedTags.push(...selectedTagNames)
+        } catch (error) {
+          console.error('Failed to fetch tag names:', error)
+        }
+      }
+
       const postData = {
         title: draft.title,
         slug: draft.slug,
         excerpt: excerptToSave,
         content: mdxContent,
         cover_image: draft.cover_image || undefined,
-        tags: [],
+        tags: selectedTags, // 使用实际的标签名称而不是空数组
         published: draft.published
       }
 
+      let savedPostId = postId
+      
       if (mode === "edit" && postId) {
         await updatePost(postId, postData)
       } else {
-        await createPost(postData)
+        const { createPost } = await import('@/lib/posts')
+        const newPost = await createPost(postData)
+        savedPostId = newPost.id
+      }
+
+      // 更新新的标签关联系统
+      if (savedPostId && draft.selectedTagIds.length >= 0) {
+        const { updatePostTags } = await import('@/lib/tags')
+        await updatePostTags(savedPostId, draft.selectedTagIds)
       }
 
       markAsSaved()
       router.push("/admin")
     } catch (error) {
-      console.error('Failed to save post:', error)
-      alert('保存失败，请检查控制台')
+      console.error('Error updating post:', error)
+      alert(`更新文章状态失败: ${error instanceof Error ? error.message : '未知错误'}`)
     }
   }
 
