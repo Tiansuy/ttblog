@@ -146,32 +146,63 @@ TTBlog 现在支持"记住登录状态"功能，让用户可以选择登录体�
 
 ## 7. 生产环境部署注意事项
 
-### 7.1 更新回调 URL
-部署到生产环境后，需要在各个 OAuth 提供商中更新回调 URL：
+### 7.1 环境变量配置（重要！）
+在 Vercel 部署时，**必须**正确设置 `NEXT_PUBLIC_SITE_URL` 环境变量：
 
-- **开发环境**: `https://your-project.supabase.co/auth/v1/callback`
-- **生产环境**: `https://your-production-domain.com` （如果使用自定义域名）
+1. 访问 [Vercel Dashboard](https://vercel.com/dashboard)
+2. 选择您的项目
+3. 点击 "Settings" → "Environment Variables"
+4. 添加：`NEXT_PUBLIC_SITE_URL=https://your-app-name.vercel.app`
 
-### 7.2 域名白名单
+**⚠️ 这是解决 OAuth 跳转到 localhost 问题的关键步骤！**
+
+### 7.2 Supabase URL 配置
+在 Supabase Dashboard → Authentication → URL Configuration 中：
+
+1. **Site URL**: 设置为 `https://your-app-name.vercel.app`
+2. **Redirect URLs**: 添加 `https://your-app-name.vercel.app/auth/callback`
+
+### 7.3 更新 OAuth 提供商设置
+部署到生产环境后，需要在各个 OAuth 提供商中更新授权域名：
+
+**GitHub OAuth 应用**：
+- **Homepage URL**: `https://your-app-name.vercel.app`
+- **Authorization callback URL**: `https://your-project.supabase.co/auth/v1/callback`
+
+**Google OAuth 应用**：
+- **Authorized JavaScript origins**: `https://your-app-name.vercel.app`
+- **Authorized redirect URIs**: `https://your-project.supabase.co/auth/v1/callback`
+
+### 7.4 域名白名单
 确保在各个 OAuth 提供商中添加生产域名到授权域名列表。
 
 ## 8. 故障排除
 
 ### 常见问题
 
-1. **"redirect_uri_mismatch" 错误**
+1. **OAuth 登录跳转到 localhost（生产环境）** 🆕
+   - **原因**: 未正确设置生产环境域名
+   - **解决方案**:
+     - 在 Vercel 环境变量中设置 `NEXT_PUBLIC_SITE_URL=https://your-app-name.vercel.app`
+     - 在 Supabase Dashboard → Authentication → URL Configuration 中设置正确的 Site URL
+     - 重新部署 Vercel 应用
+     - 清除浏览器缓存
+
+2. **"redirect_uri_mismatch" 错误**
    - 检查 OAuth 应用中的回调 URL 是否与 Supabase 回调 URL 匹配
    - 确保协议（http/https）正确
+   - 确认 Supabase 回调 URL 格式：`https://your-project.supabase.co/auth/v1/callback`
 
-2. **"invalid_client" 错误**
+3. **"invalid_client" 错误**
    - 检查 Client ID 和 Client Secret 是否正确
    - 确保 OAuth 应用状态为活跃
+   - 检查 OAuth 应用的授权域名是否包含您的生产域名
 
-3. **QQ 登录不工作**
+4. **QQ 登录不工作**
    - QQ 互联需要企业认证或个人认证
    - 考虑使用微信登录作为替代方案
 
-4. **登出后仍然自动登录** 🆕
+5. **登出后仍然自动登录** 🆕
    - 检查是否勾选了"记住登录状态"
    - 检查浏览器是否清除了相关 cookies
    - OAuth 提供商可能仍保持登录状态（这是正常的）

@@ -16,7 +16,17 @@ export async function signInWithPassword(email: string, password: string) {
 
 // 第三方 OAuth 登录
 export async function signInWithOAuth(provider: Provider, redirectTo?: string, forceReauth = true) {
-  const baseRedirectTo = redirectTo || `${window.location.origin}/auth/callback`
+  // 获取正确的域名
+  const getBaseUrl = () => {
+    // 在生产环境中使用环境变量或者固定域名
+    if (process.env.NODE_ENV === 'production') {
+      return process.env.NEXT_PUBLIC_SITE_URL || 'https://ttblog.vercel.app'
+    }
+    // 开发环境使用localhost
+    return window.location.origin
+  }
+  
+  const baseRedirectTo = redirectTo || `${getBaseUrl()}/auth/callback`
   
   const options: any = {
     redirectTo: baseRedirectTo,
@@ -82,7 +92,8 @@ export async function signInWithOAuth(provider: Provider, redirectTo?: string, f
     provider, 
     forceReauth, 
     queryParams: options.queryParams,
-    redirectTo: options.redirectTo
+    redirectTo: options.redirectTo,
+    baseUrl: getBaseUrl()
   })
 
   const { data, error } = await supabase.auth.signInWithOAuth({
