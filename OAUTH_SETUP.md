@@ -146,15 +146,23 @@ TTBlog 现在支持"记住登录状态"功能，让用户可以选择登录体�
 
 ## 7. 生产环境部署注意事项
 
-### 7.1 环境变量配置（重要！）
-在 Vercel 部署时，**必须**正确设置 `NEXT_PUBLIC_SITE_URL` 环境变量：
+### 7.1 环境变量配置（灵活配置）
 
+**🎯 新的配置策略**：`NEXT_PUBLIC_SITE_URL` 现在是**可选的**，系统会自动处理不同环境：
+
+#### 推荐配置方式
+1. **开发环境**: 不设置（自动使用 localhost）
+2. **测试环境**: 不设置（自动使用 Vercel Preview 域名）
+3. **生产环境**: 可选设置固定域名
+
+#### 如果要手动设置（在 Vercel Dashboard 中）：
 1. 访问 [Vercel Dashboard](https://vercel.com/dashboard)
 2. 选择您的项目
 3. 点击 "Settings" → "Environment Variables"
 4. 添加：`NEXT_PUBLIC_SITE_URL=https://your-app-name.vercel.app`
+5. **重要**：只在 **Production** 环境中设置，不要在 Preview 环境中设置
 
-**⚠️ 这是解决 OAuth 跳转到 localhost 问题的关键步骤！**
+**✅ 这样可以保证测试环境不受影响！**
 
 ### 7.2 Supabase URL 配置
 在 Supabase Dashboard → Authentication → URL Configuration 中：
@@ -181,28 +189,35 @@ TTBlog 现在支持"记住登录状态"功能，让用户可以选择登录体�
 ### 常见问题
 
 1. **OAuth 登录跳转到 localhost（生产环境）** 🆕
-   - **原因**: 未正确设置生产环境域名
+   - **原因**: 在特殊情况下域名识别异常
    - **解决方案**:
-     - 在 Vercel 环境变量中设置 `NEXT_PUBLIC_SITE_URL=https://your-app-name.vercel.app`
-     - 在 Supabase Dashboard → Authentication → URL Configuration 中设置正确的 Site URL
+     - 方案1（推荐）：在 Vercel 生产环境中设置 `NEXT_PUBLIC_SITE_URL=https://your-app-name.vercel.app`
+     - 方案2：检查 Supabase Dashboard → Authentication → URL Configuration 中的 Site URL 设置
      - 重新部署 Vercel 应用
      - 清除浏览器缓存
 
-2. **"redirect_uri_mismatch" 错误**
+2. **测试环境 OAuth 不工作** 🆕
+   - **原因**: 在测试环境中错误设置了生产环境 URL
+   - **解决方案**:
+     - 确保在 Vercel Preview 环境中**没有**设置 `NEXT_PUBLIC_SITE_URL`
+     - 或者设置为测试环境的实际域名
+     - 系统会自动使用 Vercel Preview 的域名
+
+3. **"redirect_uri_mismatch" 错误**
    - 检查 OAuth 应用中的回调 URL 是否与 Supabase 回调 URL 匹配
    - 确保协议（http/https）正确
    - 确认 Supabase 回调 URL 格式：`https://your-project.supabase.co/auth/v1/callback`
 
-3. **"invalid_client" 错误**
+4. **"invalid_client" 错误**
    - 检查 Client ID 和 Client Secret 是否正确
    - 确保 OAuth 应用状态为活跃
    - 检查 OAuth 应用的授权域名是否包含您的生产域名
 
-4. **QQ 登录不工作**
+5. **QQ 登录不工作**
    - QQ 互联需要企业认证或个人认证
    - 考虑使用微信登录作为替代方案
 
-5. **登出后仍然自动登录** 🆕
+6. **登出后仍然自动登录** 🆕
    - 检查是否勾选了"记住登录状态"
    - 检查浏览器是否清除了相关 cookies
    - OAuth 提供商可能仍保持登录状态（这是正常的）

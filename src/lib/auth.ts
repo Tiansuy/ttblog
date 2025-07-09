@@ -18,11 +18,17 @@ export async function signInWithPassword(email: string, password: string) {
 export async function signInWithOAuth(provider: Provider, redirectTo?: string, forceReauth = true) {
   // 获取正确的域名
   const getBaseUrl = () => {
-    // 在生产环境中使用环境变量或者固定域名
-    if (process.env.NODE_ENV === 'production') {
-      return process.env.NEXT_PUBLIC_SITE_URL || 'https://ttblog.vercel.app'
+    // 如果设置了环境变量，优先使用环境变量
+    if (process.env.NEXT_PUBLIC_SITE_URL) {
+      return process.env.NEXT_PUBLIC_SITE_URL
     }
-    // 开发环境使用localhost
+    
+    // 否则使用当前域名
+    // 在客户端环境中，window.location.origin 会正确反映当前访问的域名
+    // 这样可以正确处理：
+    // - 开发环境: http://localhost:3000
+    // - 测试环境: https://xxx-git-branch-username.vercel.app
+    // - 生产环境: https://ttblog.vercel.app (如果没有设置环境变量)
     return window.location.origin
   }
   
