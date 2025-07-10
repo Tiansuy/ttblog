@@ -28,7 +28,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                document.documentElement.classList.add('dark');
+                document.documentElement.style.colorScheme = 'dark';
+              } catch (e) {}
+            `,
+          }}
+        />
+      </head>
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
@@ -41,8 +53,10 @@ export default function RootLayout({
           <ThemeProvider
             attribute="class"
             defaultTheme="dark"
+            themes={["dark"]}
             enableSystem={false}
             disableTransitionOnChange
+            forcedTheme="dark"
           >
             <div className="relative flex min-h-screen flex-col">
               <SiteHeader />

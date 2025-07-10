@@ -52,6 +52,35 @@
 }
 
 @layer base {
+  /* 强制dark模式 - 覆盖任何可能的light模式设置 */
+  :root {
+    color-scheme: dark;
+  }
+  
+  /* 确保即使没有.dark类也使用dark模式变量 */
+  :root, :root.light {
+    /* 强制使用dark模式变量 */
+    --background: 222 47% 7%;
+    --foreground: 213 31% 91%;
+    --card: 222 47% 7%;
+    --card-foreground: 213 31% 91%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 217 91% 70%;
+    --primary-foreground: 222 47% 7%;
+    --secondary: 215 25% 16%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 215 25% 16%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 91% 70%;
+    --accent-foreground: 222 47% 7%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
+    --border: 215 25% 16%;
+    --input: 215 25% 16%;
+    --ring: 217 91% 70%;
+  }
+
   * {
     @apply border-border;
   }
@@ -60,6 +89,8 @@
     @apply bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-foreground min-h-screen;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-attachment: fixed;
+    /* 强制dark背景 */
+    background: linear-gradient(to bottom right, #0f172a, #1e3a8a, #312e81) !important;
   }
 }
 
