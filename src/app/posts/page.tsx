@@ -31,10 +31,21 @@ interface SortOption {
 
 export default function PostsPage() {
   const { t } = useTranslation()
+  const [mounted, setMounted] = useState(false)
   const [posts, setPosts] = useState<PostWithTags[]>([])
   const [tags, setTags] = useState<Tag[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  
+  // 防止hydration错误
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  // 获取文本，防止hydration错误
+  const getText = (key: string, fallback: string) => {
+    return mounted ? t(key) : fallback
+  }
   
   // 筛选和排序状态
   const [searchQuery, setSearchQuery] = useState("")
@@ -68,25 +79,25 @@ export default function PostsPage() {
   const sortOptions: SortOption[] = [
     {
       key: "time-desc",
-      label: t('posts.filters.sortDesc'),
+      label: getText('posts.filters.sortDesc', '最新优先'),
       getValue: (post) => new Date(post.published_at || post.created_at),
       order: 'desc'
     },
     {
       key: "time-asc", 
-      label: t('posts.filters.sortAsc'),
+      label: getText('posts.filters.sortAsc', '最早优先'),
       getValue: (post) => new Date(post.published_at || post.created_at),
       order: 'asc'
     },
     {
       key: "views-desc",
-      label: t('posts.filters.sortViewsDesc'),
+      label: getText('posts.filters.sortViewsDesc', '浏览量从高到低'),
       getValue: (post) => post.views || 0,
       order: 'desc'
     },
     {
       key: "views-asc",
-      label: t('posts.filters.sortViewsAsc'), 
+      label: getText('posts.filters.sortViewsAsc', '浏览量从低到高'), 
       getValue: (post) => post.views || 0,
       order: 'asc'
     }
@@ -203,10 +214,10 @@ export default function PostsPage() {
         <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10">
           <div className="container flex max-w-[64rem] flex-col items-center gap-4 text-center">
             <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl">
-              {t('posts.title')}
+              {getText('posts.title', '任务日志')}
             </h1>
             <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-              {t('posts.loading')}
+              {getText('posts.loading', '正在加载任务日志...')}
             </p>
           </div>
         </section>
@@ -219,10 +230,10 @@ export default function PostsPage() {
       <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10">
         <div className="container flex max-w-[64rem] flex-col items-center gap-4 text-center">
           <h1 className="font-heading text-3xl sm:text-5xl md:text-6xl lg:text-7xl">
-            {t('posts.title')}
+            {getText('posts.title', '任务日志')}
           </h1>
           <p className="max-w-[42rem] leading-normal text-muted-foreground sm:text-xl sm:leading-8">
-            {t('posts.subtitle')}
+            {getText('posts.subtitle', '探索我的技术旅程与发现')}
           </p>
         </div>
       </section>
@@ -233,7 +244,7 @@ export default function PostsPage() {
             <div className="text-center">
               <p className="text-destructive mb-4">{error}</p>
               <Button onClick={() => window.location.reload()}>
-                {t('common.tryAgain')}
+                {getText('common.tryAgain', '重试')}
               </Button>
             </div>
           ) : (
@@ -245,7 +256,7 @@ export default function PostsPage() {
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                     <Input
-                      placeholder={t('posts.filters.search')}
+                      placeholder={getText('posts.filters.search', '搜索文章...')}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10"
@@ -255,7 +266,7 @@ export default function PostsPage() {
                   {/* 排序和每页数量 */}
                   <div className="flex flex-wrap gap-4">
                     <div className="flex items-center gap-2">
-                      <label className="text-sm font-medium">{t('posts.filters.sortBy')}:</label>
+                      <label className="text-sm font-medium">{getText('posts.filters.sortBy', '排序方式')}:</label>
                       <select 
                         value={sortBy} 
                         onChange={(e) => setSortBy(e.target.value)}
@@ -270,7 +281,7 @@ export default function PostsPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <label className="text-sm font-medium">{t('posts.pagination.itemsPerPage')}:</label>
+                      <label className="text-sm font-medium">{getText('posts.pagination.itemsPerPage', '每页显示')}:</label>
                       <select 
                         value={itemsPerPage} 
                         onChange={(e) => setItemsPerPage(Number(e.target.value))}
@@ -285,9 +296,9 @@ export default function PostsPage() {
                   </div>
 
                   {/* 标签筛选 */}
-                  <div className="space-y-3">
+                                      <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium">{t('posts.filters.filterByTags')}:</label>
+                      <label className="text-sm font-medium">{getText('posts.filters.filterByTags', '按标签筛选')}:</label>
                       {(selectedTagIds.length > 0 || searchQuery.trim()) && (
                         <Button 
                           variant="outline" 
@@ -296,7 +307,7 @@ export default function PostsPage() {
                           className="flex items-center gap-1"
                         >
                           <X className="h-3 w-3" />
-                          {t('posts.filters.clearFilters')}
+                          {getText('posts.filters.clearFilters', '清除筛选')}
                         </Button>
                       )}
                     </div>
@@ -325,11 +336,14 @@ export default function PostsPage() {
               {/* 统计信息 */}
               <div className="text-center mb-8">
                 <p className="text-lg text-muted-foreground">
-                  {t('posts.pagination.showing', {
-                    start: currentPosts.length > 0 ? startIndex + 1 : 0,
-                    end: Math.min(endIndex, filteredAndSortedPosts.length),
-                    total: filteredAndSortedPosts.length
-                  })}
+                  {mounted ? 
+                    t('posts.pagination.showing', {
+                      start: currentPosts.length > 0 ? startIndex + 1 : 0,
+                      end: Math.min(endIndex, filteredAndSortedPosts.length),
+                      total: filteredAndSortedPosts.length
+                    }) :
+                    `显示第 ${currentPosts.length > 0 ? startIndex + 1 : 0} - ${Math.min(endIndex, filteredAndSortedPosts.length)} 项，共 ${filteredAndSortedPosts.length} 项`
+                  }
                 </p>
               </div>
 
@@ -356,7 +370,10 @@ export default function PostsPage() {
                     <div className="mt-8 flex flex-col items-center space-y-4">
                       {/* 页码信息 */}
                       <p className="text-sm text-muted-foreground">
-                        {t('posts.pagination.page', { current: currentPage, total: totalPages })}
+                        {mounted ? 
+                          t('posts.pagination.page', { current: currentPage, total: totalPages }) :
+                          `第 ${currentPage} 页，共 ${totalPages} 页`
+                        }
                       </p>
 
                       {/* 分页按钮 */}
@@ -368,7 +385,7 @@ export default function PostsPage() {
                           disabled={currentPage === 1}
                         >
                           <ChevronsLeft className="h-4 w-4" />
-                          {t('posts.pagination.first')}
+                          {getText('posts.pagination.first', '首页')}
                         </Button>
                         
                         <Button
@@ -378,7 +395,7 @@ export default function PostsPage() {
                           disabled={currentPage === 1}
                         >
                           <ChevronLeft className="h-4 w-4" />
-                          {t('posts.pagination.previous')}
+                          {getText('posts.pagination.previous', '上一页')}
                         </Button>
 
                         {/* 页码选择器 */}
@@ -407,7 +424,7 @@ export default function PostsPage() {
                           onClick={() => goToPage(currentPage + 1)}
                           disabled={currentPage === totalPages}
                         >
-                          {t('posts.pagination.next')}
+                          {getText('posts.pagination.next', '下一页')}
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                         
@@ -417,7 +434,7 @@ export default function PostsPage() {
                           onClick={() => goToPage(totalPages)}
                           disabled={currentPage === totalPages}
                         >
-                          {t('posts.pagination.last')}
+                          {getText('posts.pagination.last', '末页')}
                           <ChevronsRight className="h-4 w-4" />
                         </Button>
                       </div>
@@ -425,7 +442,7 @@ export default function PostsPage() {
                       {/* 快速跳转 */}
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-muted-foreground">
-                          {t('posts.pagination.goToPage')}:
+                          {getText('posts.pagination.goToPage', '跳转到')}:
                         </span>
                         <Input
                           type="number"
@@ -448,13 +465,13 @@ export default function PostsPage() {
                 <div className="text-center py-12">
                   <p className="text-muted-foreground mb-4">
                     {filteredAndSortedPosts.length === 0 && posts.length > 0 
-                      ? t('posts.filters.noResults')
-                      : t('posts.noPostsFound')
+                      ? getText('posts.filters.noResults', '没有找到符合条件的文章')
+                      : getText('posts.noPostsFound', '暂无文章')
                     }
                   </p>
                   {filteredAndSortedPosts.length === 0 && posts.length === 0 && (
                     <pre className="mt-4 rounded-lg bg-muted p-4 text-sm inline-block">
-                      {t('posts.runInitScript')}
+                      {getText('posts.runInitScript', 'npm run init:posts')}
                     </pre>
                   )}
                 </div>

@@ -27,7 +27,7 @@ export function ThemeToggle() {
   // 在挂载前显示占位符，避免布局偏移
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon">
+      <Button variant="ghost" size="icon" className="text-blue-100 hover:text-blue-200 hover:bg-blue-800/50">
         <Sun className="h-[1.2rem] w-[1.2rem]" />
         <span className="sr-only">Toggle theme</span>
       </Button>
@@ -39,7 +39,7 @@ export function ThemeToggle() {
   const isDark = currentTheme === "dark"
 
   return (
-    <Button variant="ghost" size="icon" onClick={handleToggle}>
+    <Button variant="ghost" size="icon" onClick={handleToggle} className="text-blue-100 hover:text-blue-200 hover:bg-blue-800/50 transition-all duration-300">
       <Sun className={`h-[1.2rem] w-[1.2rem] transition-all duration-300 ${isDark ? 'rotate-90 scale-0' : 'rotate-0 scale-100'}`} />
       <Moon className={`absolute h-[1.2rem] w-[1.2rem] transition-all duration-300 ${isDark ? 'rotate-0 scale-100' : '-rotate-90 scale-0'}`} />
       <span className="sr-only">Toggle theme</span>

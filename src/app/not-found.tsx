@@ -3,15 +3,15 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ThemeToggle } from '@/components/theme-toggle'
+// import { ThemeToggle } from '@/components/theme-toggle'
 import { Home, ArrowLeft, Search } from 'lucide-react'
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="absolute top-4 right-4">
+      {/* <div className="absolute top-4 right-4">
         <ThemeToggle />
-      </div>
+      </div> */}
       
       <div className="flex items-center justify-center min-h-screen p-4">
         <Card className="w-full max-w-md">

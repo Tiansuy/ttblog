@@ -7,45 +7,50 @@ const resources = {
     translation: {
       // 网站基本信息
       site: {
-        title: "TTBlog - Personal CMS",
-        description: "A modern personal content management system",
+        title: "T's Space Station - 天随空间站",
+        description: "A cosmic content management system exploring the universe of technology",
         home: "Home",
-        posts: "Posts",
+        posts: "Mission Logs",
         about: "About",
-        aboutSite: "About Site",
+        aboutSite: "About Station",
         aboutMe: "About Me",
-        admin: "Admin"
+        admin: "Control Center"
+      },
+      // Logo 组件
+      logo: {
+        title: "T's Space Station",
+        subtitle: "Exploring the Universe"
       },
       // 首页相关
       home: {
-        title: "Welcome to TTBlog",
-        subtitle: "A modern personal content management system built with Next.js, Supabase and more. Share technical insights and document learning journeys.",
-        browsePosts: "Browse Articles",
-        learnMore: "Learn More",
+        title: "Welcome to T's Space Station",
+        subtitle: "A cosmic platform for exploring the universe of technology. Journey through frontend galaxies, backend nebulae, AI constellations and more. Share cosmic insights and document interstellar learning adventures.",
+        browsePosts: "Explore Mission Logs",
+        learnMore: "Discover More",
         features: {
-          title: "Technical Features",
-          subtitle: "Modern tech stack providing excellent reading and management experience",
+          title: "Station Features",
+          subtitle: "Advanced space technology providing stellar exploration and management experience",
           modernTech: {
-            title: "Modern Tech Stack",
-            description: "Built with Next.js 15, TypeScript, Tailwind CSS for excellent developer experience"
+            title: "Quantum Tech Stack",
+            description: "Powered by Next.js 15, TypeScript, Tailwind CSS for warp-speed development experience"
           },
           richContent: {
-            title: "Rich Content",
-            description: "Covers frontend development, backend technology, AI machine learning and more technical domains"
+            title: "Galactic Knowledge",
+            description: "Navigate through frontend galaxies, backend star systems, AI nebulae and cosmic programming domains"
           },
           studyNotes: {
-            title: "Study Notes",
-            description: "Document technical learning process, share practical experience and best practices"
+            title: "Mission Logs",
+            description: "Chronicle space exploration journeys, share cosmic discoveries and interstellar best practices"
           },
           openSharing: {
-            title: "Open Sharing",
-            description: "Multi-language support, open source project, welcome technical exchange and knowledge sharing"
+            title: "Universal Connection",
+            description: "Multi-language support, open source mission, fostering cosmic collaboration and knowledge sharing across the universe"
           }
         },
         cta: {
-          title: "Start Exploring",
-          subtitle: "Browse our technical articles and discover valuable content",
-          viewAllPosts: "View All Articles"
+          title: "Begin Your Journey",
+          subtitle: "Explore our cosmic archives and discover stellar content from across the galaxy",
+          viewAllPosts: "View All Mission Logs"
         }
       },
       // 文章相关
@@ -208,7 +213,11 @@ const resources = {
         selectLoginMethod: "Please select a login method to access the admin panel",
         qqLoginNotImplemented: "QQ login is not yet implemented. Please use GitHub or Google login, or contact the administrator.",
         loggingIn: "Logging in...",
-        orLoginWithEmail: "Or login with email"
+        orLoginWithEmail: "Or login with email",
+        oauthError: "OAuth login failed",
+        authError: "Authentication failed", 
+        callbackError: "Callback processing failed",
+        redirectAfterLogin: "Will redirect to after login"
       },
       // 管理后台
       admin: {
@@ -292,6 +301,66 @@ const resources = {
         title: "Page Not Found",
         description: "The page you're looking for doesn't exist or has been moved.",
         backToHome: "Back to Homepage"
+      },
+      // 评论系统
+      comments: {
+        title: "Comments",
+        count: "{{count}} comment",
+        count_other: "{{count}} comments",
+        noComments: "No comments yet. Be the first to comment!",
+        writeComment: "Write your comment...",
+        reply: "Reply",
+        edit: "Edit",
+        delete: "Delete",
+        cancel: "Cancel",
+        save: "Save",
+        submit: "Submit Comment",
+        submitReply: "Submit Reply",
+        updating: "Updating...",
+        submitting: "Submitting...",
+        pleaseLogin: "Please login to comment",
+        loginToComment: "Login to Comment",
+        confirmDelete: "Are you sure you want to delete this comment?",
+        deleteSuccess: "Comment deleted successfully",
+        updateSuccess: "Comment updated successfully",
+        submitSuccess: "Comment submitted successfully",
+        loadingComments: "Loading comments...",
+        loadCommentsError: "Failed to load comments",
+        retryLoading: "Retry",
+        characterLimit: "{{current}}/{{max}} characters",
+        tooLong: "Comment is too long",
+        repliesCount: "{{count}} reply",
+        repliesCount_other: "{{count}} replies",
+        showReplies: "Show replies",
+        hideReplies: "Hide replies",
+        replyTo: "Reply to {{name}}",
+        editedLabel: "(edited)",
+        justNow: "just now",
+        timeAgo: "{{time}} ago"
+      },
+      // 点赞按钮
+      like: {
+        like: "Like",
+        liked: "Liked",
+        liking: "Liking...",
+        likePost: "Like this post",
+        alreadyLiked: "You have already liked this",
+        likeCount: "({{count}})"
+      },
+      // 文章详情
+      post: {
+        publishedAt: "Published on",
+        lastUpdated: "Last updated on",
+        readingTime: "{{time}} min read",
+        views: "{{count}} view",
+        views_other: "{{count}} views",
+        minutesRead: "minutes read"
+      },
+      // Footer
+      footer: {
+        builtBy: "Built by",
+        sourceCodeAvailable: "The source code is available on",
+        github: "GitHub"
       }
     }
   },
@@ -299,45 +368,50 @@ const resources = {
     translation: {
       // 网站基本信息
       site: {
-        title: "TTBlog - 个人内容管理系统",
-        description: "现代化个人内容管理系统",
-        home: "首页",
-        posts: "文章",
+        title: "天随空间站 - T's Space Station",
+        description: "探索技术宇宙的星际内容管理系统",
+        home: "主控台",
+        posts: "任务日志",
         about: "关于",
-        aboutSite: "关于本站",
+        aboutSite: "关于空间站",
         aboutMe: "关于我",
-        admin: "管理"
+        admin: "指挥中心"
+      },
+      // Logo 组件
+      logo: {
+        title: "天随空间站",
+        subtitle: "探索技术宇宙"
       },
       // 首页相关
       home: {
-        title: "欢迎来到 TTBlog",
-        subtitle: "一个现代化的个人内容管理系统，使用 Next.js、Supabase 等技术构建。分享技术见解，记录学习历程。",
-        browsePosts: "浏览文章",
+        title: "欢迎来到天随空间站",
+        subtitle: "一个探索技术宇宙的星际平台。穿越前端星系、后端星云、AI星座等更多宇宙领域。分享星际见解，记录跨星系学习冒险。",
+        browsePosts: "探索任务日志",
         learnMore: "了解更多",
         features: {
-          title: "技术特色",
-          subtitle: "现代化的技术栈，提供优秀的阅读和管理体验",
+          title: "空间站特色",
+          subtitle: "先进的太空技术，提供星际级的探索和管理体验",
           modernTech: {
-            title: "现代技术栈",
-            description: "基于 Next.js 15、TypeScript、Tailwind CSS 构建，提供优秀的开发体验"
+            title: "量子技术栈",
+            description: "基于 Next.js 15、TypeScript、Tailwind CSS 构建，提供超光速开发体验"
           },
           richContent: {
-            title: "丰富内容",
-            description: "涵盖前端开发、后端技术、AI 机器学习等多个技术领域的深度文章"
+            title: "银河系知识库",
+            description: "航行穿越前端星系、后端恒星系统、AI星云等宇宙级编程领域"
           },
           studyNotes: {
-            title: "学习笔记",
-            description: "记录技术学习过程，分享实用经验和最佳实践"
+            title: "太空任务日志",
+            description: "记录太空探索旅程，分享宇宙发现和星际最佳实践"
           },
           openSharing: {
-            title: "开放分享",
-            description: "支持多语言，开源项目，欢迎技术交流和知识分享"
+            title: "宇宙级连接",
+            description: "多语言支持，开源任务，促进宇宙协作和跨银河系知识分享"
           }
         },
         cta: {
-          title: "开始探索",
-          subtitle: "浏览我们的技术文章，发现有价值的内容",
-          viewAllPosts: "查看所有文章"
+          title: "开始您的星际之旅",
+          subtitle: "探索我们的宇宙档案，发现来自整个银河系的精彩内容",
+          viewAllPosts: "查看所有任务日志"
         }
       },
       // 文章相关
@@ -500,7 +574,11 @@ const resources = {
         selectLoginMethod: "请选择登录方式以访问管理后台",
         qqLoginNotImplemented: "QQ 登录功能暂未实现。请使用 GitHub 或 Google 登录，或联系管理员。",
         loggingIn: "登录中...",
-        orLoginWithEmail: "或使用邮箱登录"
+        orLoginWithEmail: "或使用邮箱登录",
+        oauthError: "OAuth 登录失败",
+        authError: "认证失败", 
+        callbackError: "回调处理失败",
+        redirectAfterLogin: "登录后将跳转到"
       },
       // 管理后台
       admin: {
@@ -584,6 +662,66 @@ const resources = {
         title: "页面未找到",
         description: "您要查找的页面不存在或已被移动。",
         backToHome: "返回首页"
+      },
+      // 评论系统
+      comments: {
+        title: "评论",
+        count: "{{count}} 条评论",
+        count_other: "{{count}} 条评论",
+        noComments: "还没有评论，来发表第一条评论吧！",
+        writeComment: "写下你的评论...",
+        reply: "回复",
+        edit: "编辑",
+        delete: "删除",
+        cancel: "取消",
+        save: "保存",
+        submit: "发布评论",
+        submitReply: "发布回复",
+        updating: "更新中...",
+        submitting: "发布中...",
+        pleaseLogin: "请先登录后发表评论",
+        loginToComment: "登录后评论",
+        confirmDelete: "确定要删除这条评论吗？",
+        deleteSuccess: "评论删除成功",
+        updateSuccess: "评论更新成功",
+        submitSuccess: "评论发布成功",
+        loadingComments: "加载评论中...",
+        loadCommentsError: "加载评论失败",
+        retryLoading: "重试",
+        characterLimit: "{{current}}/{{max}} 字符",
+        tooLong: "评论内容过长",
+        repliesCount: "{{count}} 条回复",
+        repliesCount_other: "{{count}} 条回复",
+        showReplies: "显示回复",
+        hideReplies: "隐藏回复",
+        replyTo: "回复 {{name}}",
+        editedLabel: "（已编辑）",
+        justNow: "刚刚",
+        timeAgo: "{{time}}前"
+      },
+      // 点赞按钮
+      like: {
+        like: "点赞",
+        liked: "已点赞",
+        liking: "点赞中...",
+        likePost: "点击点赞",
+        alreadyLiked: "您已经点赞过了",
+        likeCount: "({{count}})"
+      },
+      // 文章详情
+      post: {
+        publishedAt: "发布于",
+        lastUpdated: "最后更新于",
+        readingTime: "{{time}} 分钟阅读",
+        views: "{{count}} 次浏览",
+        views_other: "{{count}} 次浏览",
+        minutesRead: "分钟阅读"
+      },
+      // Footer
+      footer: {
+        builtBy: "由",
+        sourceCodeAvailable: "构建。源代码可在",
+        github: "GitHub"
       }
     }
   }
@@ -593,12 +731,20 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: typeof window !== 'undefined' ? localStorage.getItem('language') || 'zh' : 'zh', // 默认中文
+    lng: 'zh', // 设置固定的默认语言，避免SSR不匹配
     fallbackLng: 'zh',
     interpolation: {
       escapeValue: false // React 已经处理了 XSS
     },
     debug: process.env.NODE_ENV === 'development'
   })
+
+// 在客户端，hydration完成后应用用户的语言偏好
+if (typeof window !== 'undefined') {
+  const savedLanguage = localStorage.getItem('language')
+  if (savedLanguage && savedLanguage !== i18n.language) {
+    i18n.changeLanguage(savedLanguage)
+  }
+}
 
 export default i18n 

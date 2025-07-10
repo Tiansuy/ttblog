@@ -235,4 +235,55 @@ export async function incrementPostLikes(slug: string): Promise<void> {
   if (error) {
     console.error('Error incrementing likes:', error);
   }
+}
+
+// 检查用户是否已经点赞
+export async function checkUserLikedPost(
+  slug: string, 
+  userId?: string, 
+  userIdentifier?: string
+): Promise<boolean> {
+  const { data, error } = await supabase.rpc('check_user_liked_post', {
+    post_slug: slug,
+    p_user_id: userId || null,
+    p_user_identifier: userIdentifier || null
+  });
+
+  if (error) {
+    console.error('Error checking user like status:', error);
+    return false;
+  }
+
+  return data || false;
+}
+
+// 安全的点赞操作
+export async function likePost(
+  slug: string, 
+  userId?: string, 
+  userIdentifier?: string
+): Promise<{
+  success: boolean;
+  message: string;
+  newLikeCount?: number;
+}> {
+  const { data, error } = await supabase.rpc('like_post', {
+    post_slug: slug,
+    p_user_id: userId || null,
+    p_user_identifier: userIdentifier || null
+  });
+
+  if (error) {
+    console.error('Error liking post:', error);
+    return {
+      success: false,
+      message: 'Failed to like post'
+    };
+  }
+
+  return {
+    success: data.success,
+    message: data.message,
+    newLikeCount: data.new_like_count
+  };
 } 

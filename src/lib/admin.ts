@@ -2,10 +2,10 @@ import type { User } from '@supabase/supabase-js'
 
 // 管理员邮箱列表 - 在这里添加/删除管理员邮箱
 const ADMIN_EMAILS = [
-  // 'admin@example.com',
-  // 在这里添加更多管理员邮箱
-  // 'tiansuy27@gmail.com',
+  'admin@example.com',
+  'tiansuy27@gmail.com',
   '2734333845@qq.com',
+  // 在这里添加更多管理员邮箱
 ]
 
 /**

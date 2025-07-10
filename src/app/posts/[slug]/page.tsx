@@ -1,17 +1,18 @@
 import { notFound } from 'next/navigation'
-import { getPostBySlug, incrementPostViews } from '@/lib/posts'
+import { getPostBySlug } from '@/lib/posts'
 import { MDXContent } from '@/components/mdx-content'
-import { format } from 'date-fns'
-import { Eye, Heart, Calendar, Clock, Tag } from 'lucide-react'
+import { ViewTracker } from '@/components/view-tracker'
+import { LikeButton } from '@/components/like-button'
+import { CommentSection } from '@/components/comment-section'
+import { PostHeader } from '@/components/post-header'
+import { PostFooter } from '@/components/post-footer'
 import Image from 'next/image'
 
 // 设置缓存时间为1小时，可以通过 revalidatePath/revalidateTag 手动触发更新
 export const revalidate = 3600;
 
 interface PostPageProps {
-  params: Promise<{
-    slug: string
-  }>
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: PostPageProps) {
@@ -51,78 +52,74 @@ export default async function PostPage({ params }: PostPageProps) {
     notFound()
   }
 
-  // 增加浏览量
-  await incrementPostViews(decodedSlug)
-
   // 估算阅读时间（基于字数，平均每分钟 200 字）
   const wordCount = post.content.split(/\s+/).length
   const readingTime = Math.ceil(wordCount / 200)
 
   return (
-    <article className="container max-w-3xl py-6 lg:py-12">
-      {/* 文章头部 */}
-      <div className="space-y-4">
-        <h1 className="inline-block font-heading text-4xl lg:text-5xl">
-          {post.title}
-        </h1>
-        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />
-            <time dateTime={post.published_at}>
-              {format(new Date(post.published_at), 'yyyy年MM月dd日')}
-            </time>
-          </div>
-          <div className="flex items-center gap-1">
-            <Clock className="h-4 w-4" />
-            <span>{readingTime} 分钟阅读</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Eye className="h-4 w-4" />
-            <span>{post.views} 次浏览</span>
-          </div>
-          {post.tags && post.tags.length > 0 && (
-            <div className="flex items-center gap-1">
-              <Tag className="h-4 w-4" />
-              <span>{post.tags.join(', ')}</span>
+    <div className="min-h-screen bg-background">
+      {/* 客户端浏览量跟踪组件 */}
+      <ViewTracker postSlug={decodedSlug} />
+
+      {/* 响应式布局容器 */}
+      <div className="container max-w-7xl mx-auto py-6 lg:py-12">
+        <div className="flex flex-col lg:flex-row lg:gap-8">
+          {/* 文章内容区域 */}
+          <main className="flex-1 lg:max-w-4xl">
+            <article className="space-y-8">
+              {/* 文章头部 */}
+              <PostHeader 
+                title={post.title}
+                publishedAt={post.published_at}
+                readingTime={readingTime}
+                views={post.views}
+                tags={post.tags}
+              />
+
+              {/* 封面图片 */}
+              {post.cover_image && (
+                <div className="overflow-hidden rounded-lg border bg-muted">
+                  <Image
+                    src={post.cover_image}
+                    alt={post.title}
+                    width={1200}
+                    height={630}
+                    className="aspect-[1200/630] object-cover"
+                    priority
+                  />
+                </div>
+              )}
+
+              {/* 文章内容 */}
+              <div className="prose prose-neutral dark:prose-invert max-w-none">
+                <MDXContent content={post.content} />
+              </div>
+
+              {/* 文章底部 */}
+              <PostFooter 
+                updatedAt={post.updated_at}
+                postSlug={decodedSlug}
+                initialLikeCount={post.likes}
+              />
+            </article>
+          </main>
+
+          {/* 大屏幕评论区域 - 固定侧边栏 */}
+          <aside className="hidden lg:block lg:w-96">
+            <div className="sticky top-[3.5rem] -mt-12 pt-12">
+              <CommentSection 
+                postId={post.id} 
+                className="h-[600px] rounded-lg border shadow-sm bg-card"
+              />
             </div>
-          )}
+          </aside>
+        </div>
+
+        {/* 移动端：底部评论 */}
+        <div className="lg:hidden mt-12">
+          <CommentSection postId={post.id} isMobile={true} className="rounded-lg border" />
         </div>
       </div>
-
-      {/* 封面图片 */}
-      {post.cover_image && (
-        <div className="my-8 overflow-hidden rounded-lg border bg-muted">
-          <Image
-            src={post.cover_image}
-            alt={post.title}
-            width={1200}
-            height={630}
-            className="aspect-[1200/630] object-cover"
-            priority
-          />
-        </div>
-      )}
-
-      {/* 文章内容 */}
-      <div className="prose prose-neutral dark:prose-invert max-w-none">
-        <MDXContent content={post.content} />
-      </div>
-
-      {/* 文章底部 */}
-      <footer className="mt-12 border-t border-border pt-8">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            最后更新于 {format(new Date(post.updated_at), 'yyyy年MM月dd日')}
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm hover:bg-secondary/80">
-              <Heart className="h-4 w-4" />
-              点赞 ({post.likes})
-            </button>
-          </div>
-        </div>
-      </footer>
-    </article>
+    </div>
   )
 } 

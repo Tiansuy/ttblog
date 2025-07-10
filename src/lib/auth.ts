@@ -18,18 +18,51 @@ export async function signInWithPassword(email: string, password: string) {
 export async function signInWithOAuth(provider: Provider, redirectTo?: string, forceReauth = true) {
   // 获取正确的域名
   const getBaseUrl = () => {
-    // 如果设置了环境变量，优先使用环境变量
+    // 智能检测环境并处理重定向URL
+    const currentOrigin = window.location.origin
+    
+    console.log(`[Auth] 当前域名: ${currentOrigin}`)
+    console.log(`[Auth] 环境变量: ${process.env.NEXT_PUBLIC_SITE_URL || 'undefined'}`)
+    
+    // 如果是localhost开发环境，直接使用当前域名
+    if (currentOrigin.includes('localhost')) {
+      console.log(`[Auth] 检测到开发环境，使用当前域名: ${currentOrigin}`)
+      return currentOrigin
+    }
+    
+    // 如果是Vercel预览环境（包含git分支信息），强制使用当前域名
+    if (currentOrigin.includes('vercel.app') && currentOrigin.includes('-git-')) {
+      console.log(`[Auth] 检测到Vercel预览环境，强制使用当前域名: ${currentOrigin}`)
+      return currentOrigin
+    }
+    
+    // 如果是Vercel但不是预览环境（生产环境），检查环境变量
+    if (currentOrigin.includes('vercel.app')) {
+      console.log(`[Auth] 检测到Vercel生产环境`)
+      if (process.env.NEXT_PUBLIC_SITE_URL) {
+        console.log(`[Auth] 使用环境变量: ${process.env.NEXT_PUBLIC_SITE_URL}`)
+        return process.env.NEXT_PUBLIC_SITE_URL
+      } else {
+        console.log(`[Auth] 环境变量未设置，使用当前域名: ${currentOrigin}`)
+        return currentOrigin
+      }
+    }
+    
+    // 其他情况：如果设置了环境变量，使用环境变量
     if (process.env.NEXT_PUBLIC_SITE_URL) {
+      // 检查环境变量是否与当前域名一致
+      if (currentOrigin !== process.env.NEXT_PUBLIC_SITE_URL) {
+        console.warn(`[Auth] 环境变量NEXT_PUBLIC_SITE_URL (${process.env.NEXT_PUBLIC_SITE_URL}) 与当前域名 (${currentOrigin}) 不一致`)
+        console.warn(`[Auth] 为了解决重定向问题，强制使用当前域名: ${currentOrigin}`)
+        return currentOrigin  // 临时修复：强制使用当前域名
+      }
+      console.log(`[Auth] 使用环境变量: ${process.env.NEXT_PUBLIC_SITE_URL}`)
       return process.env.NEXT_PUBLIC_SITE_URL
     }
     
-    // 否则使用当前域名
-    // 在客户端环境中，window.location.origin 会正确反映当前访问的域名
-    // 这样可以正确处理：
-    // - 开发环境: http://localhost:3000
-    // - 测试环境: https://xxx-git-branch-username.vercel.app
-    // - 生产环境: https://ttblog.vercel.app (如果没有设置环境变量)
-    return window.location.origin
+    // 默认情况：使用当前域名
+    console.log(`[Auth] 默认使用当前域名: ${currentOrigin}`)
+    return currentOrigin
   }
   
   const baseRedirectTo = redirectTo || `${getBaseUrl()}/auth/callback`
@@ -99,7 +132,9 @@ export async function signInWithOAuth(provider: Provider, redirectTo?: string, f
     forceReauth, 
     queryParams: options.queryParams,
     redirectTo: options.redirectTo,
-    baseUrl: getBaseUrl()
+    baseUrl: getBaseUrl(),
+    currentOrigin: window.location.origin,
+    envSiteUrl: process.env.NEXT_PUBLIC_SITE_URL
   })
 
   const { data, error } = await supabase.auth.signInWithOAuth({

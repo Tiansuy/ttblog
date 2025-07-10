@@ -33,6 +33,27 @@ export interface PostWithTags extends Post {
   post_tags?: PostTag[]
 }
 
+export interface Comment {
+  id: string
+  post_id: string
+  parent_id?: string
+  user_id: string
+  content: string
+  created_at: string
+  updated_at: string
+  is_deleted: boolean
+}
+
+export interface CommentWithUser extends Comment {
+  user_email: string
+  user_name: string
+  user_avatar_url?: string
+}
+
+export interface CommentTree extends CommentWithUser {
+  replies: CommentTree[]
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -50,6 +71,11 @@ export interface Database {
         Row: PostTag
         Insert: Omit<PostTag, 'id' | 'created_at'>
         Update: Partial<Omit<PostTag, 'id' | 'created_at'>>
+      }
+      comments: {
+        Row: Comment
+        Insert: Omit<Comment, 'id' | 'created_at' | 'updated_at' | 'is_deleted'>
+        Update: Partial<Omit<Comment, 'id' | 'created_at' | 'updated_at'>>
       }
     }
   }

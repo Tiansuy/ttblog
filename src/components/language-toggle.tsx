@@ -40,7 +40,7 @@ export function LanguageToggle() {
   // 在挂载前显示占位符，避免布局偏移
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon">
+      <Button variant="ghost" size="icon" className="text-blue-100 hover:text-blue-200 hover:bg-blue-800/50">
         <Globe className="h-[1.2rem] w-[1.2rem]" />
         <span className="sr-only">Change language</span>
       </Button>
@@ -52,17 +52,17 @@ export function LanguageToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" className="text-blue-100 hover:text-blue-200 hover:bg-blue-800/50 transition-all duration-300">
           <Globe className="h-[1.2rem] w-[1.2rem]" />
           <span className="sr-only">{t('common.changeLanguage')}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end" className="bg-slate-900 border border-blue-400/20 shadow-xl shadow-blue-900/20">
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
             onClick={() => handleLanguageChange(lang.code)}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 text-blue-100 hover:bg-blue-800/30 hover:text-blue-200"
           >
             <span className="flex-1">{lang.nativeName}</span>
             {i18n.language === lang.code && (

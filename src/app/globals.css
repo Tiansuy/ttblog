@@ -4,48 +4,50 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.5rem;
+    /* Space Station Light Theme */
+    --background: 210 100% 97%;
+    --foreground: 215 25% 27%;
+    --card: 210 100% 98%;
+    --card-foreground: 215 25% 27%;
+    --popover: 210 100% 98%;
+    --popover-foreground: 215 25% 27%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 215 25% 27%;
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    /* Space Station Dark Theme - Deep Space */
+    --background: 222 47% 7%;
+    --foreground: 213 31% 91%;
+    --card: 222 47% 7%;
+    --card-foreground: 213 31% 91%;
+    --popover: 222 47% 7%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 217 91% 70%;
+    --primary-foreground: 222 47% 7%;
+    --secondary: 215 25% 16%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 215 25% 16%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 91% 70%;
+    --accent-foreground: 222 47% 7%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 213 31% 91%;
+    --border: 215 25% 16%;
+    --input: 215 25% 16%;
+    --ring: 217 91% 70%;
   }
 }
 
@@ -53,9 +55,111 @@
   * {
     @apply border-border;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-foreground min-h-screen;
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .font-orbitron {
+    font-family: var(--font-orbitron), 'Inter', sans-serif;
+  }
+  
+  .font-jetbrains-mono {
+    font-family: var(--font-jetbrains-mono), 'Monaco', monospace;
+  }
+
+  /* 星空背景动画 */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      radial-gradient(2px 2px at 20px 30px, rgb(59, 130, 246, 0.3), transparent),
+      radial-gradient(2px 2px at 40px 70px, rgb(99, 102, 241, 0.4), transparent),
+      radial-gradient(1px 1px at 90px 40px, rgb(147, 197, 253, 0.5), transparent),
+      radial-gradient(1px 1px at 130px 80px, rgb(191, 219, 254, 0.3), transparent),
+      radial-gradient(2px 2px at 160px 30px, rgb(59, 130, 246, 0.4), transparent);
+    background-repeat: repeat;
+    background-size: 200px 100px;
+    animation: starfield 120s linear infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  @keyframes starfield {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(-100px);
+    }
+  }
+
+  /* 流星动画 */
+  .shooting-star {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    width: 4px;
+    height: 4px;
+    background: linear-gradient(45deg, #fff, transparent);
+    border-radius: 50%;
+    animation: shootingStar 3s ease-in-out infinite;
+    opacity: 0;
+    z-index: -1;
+  }
+
+  @keyframes shootingStar {
+    0% {
+      opacity: 1;
+      transform: translateX(-100px) translateY(-100px) rotate(45deg);
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateX(1000px) translateY(1000px) rotate(45deg);
+    }
+  }
+
+  /* 脉冲动画 */
+  @keyframes cosmic-pulse {
+    0%, 100% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05);
+    }
+  }
+
+  /* 宇宙旋转动画 */
+  @keyframes cosmic-rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* 悬浮动画 */
+  @keyframes cosmic-float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
   }
 }
 
@@ -72,5 +176,147 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+  }
+
+  /* 太空主题实用类 */
+  .cosmic-glow {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  }
+  
+  .cosmic-border {
+    border: 1px solid rgba(59, 130, 246, 0.3);
+  }
+  
+  .space-card {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+
+  /* 星际文本效果 */
+  .cosmic-text {
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: cosmic-gradient 3s ease infinite;
+  }
+
+  @keyframes cosmic-gradient {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* 字体波动高亮效果 */
+  .cosmic-wave-text {
+    animation: cosmic-wave 4s ease-in-out infinite;
+  }
+
+  @keyframes cosmic-wave {
+    0%, 100% {
+      filter: brightness(1) drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+    }
+    25% {
+      filter: brightness(1.2) drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
+    }
+    50% {
+      filter: brightness(1.4) drop-shadow(0 0 30px rgba(99, 102, 241, 1));
+    }
+    75% {
+      filter: brightness(1.2) drop-shadow(0 0 20px rgba(59, 130, 246, 0.8));
+    }
+  }
+
+  /* 发光文字效果 */
+  .cosmic-glow-text {
+    text-shadow: 
+      0 0 5px rgba(59, 130, 246, 0.5),
+      0 0 10px rgba(59, 130, 246, 0.4),
+      0 0 15px rgba(59, 130, 246, 0.3);
+    animation: cosmic-glow-pulse 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes cosmic-glow-pulse {
+    from {
+      text-shadow: 
+        0 0 5px rgba(59, 130, 246, 0.5),
+        0 0 10px rgba(59, 130, 246, 0.4),
+        0 0 15px rgba(59, 130, 246, 0.3);
+    }
+    to {
+      text-shadow: 
+        0 0 10px rgba(59, 130, 246, 0.8),
+        0 0 20px rgba(59, 130, 246, 0.6),
+        0 0 30px rgba(59, 130, 246, 0.4),
+        0 0 40px rgba(99, 102, 241, 0.2);
+    }
+  }
+
+  /* 高亮闪烁文字 */
+  .cosmic-highlight-text {
+    position: relative;
+    animation: cosmic-highlight 3s ease-in-out infinite;
+  }
+
+  @keyframes cosmic-highlight {
+    0%, 100% {
+      text-shadow: 
+        0 0 5px rgba(59, 130, 246, 0.3),
+        0 0 10px rgba(59, 130, 246, 0.2);
+    }
+    20% {
+      text-shadow: 
+        0 0 10px rgba(59, 130, 246, 0.6),
+        0 0 20px rgba(59, 130, 246, 0.4),
+        0 0 30px rgba(99, 102, 241, 0.3);
+    }
+    40% {
+      text-shadow: 
+        0 0 15px rgba(59, 130, 246, 0.9),
+        0 0 25px rgba(59, 130, 246, 0.6),
+        0 0 35px rgba(99, 102, 241, 0.4),
+        0 0 45px rgba(168, 85, 247, 0.2);
+    }
+    60% {
+      text-shadow: 
+        0 0 10px rgba(59, 130, 246, 0.6),
+        0 0 20px rgba(59, 130, 246, 0.4),
+        0 0 30px rgba(99, 102, 241, 0.3);
+    }
+  }
+
+  /* 随机星星动画 */
+  @keyframes random-twinkle {
+    0%, 100% { 
+      opacity: 0.3; 
+      transform: scale(1);
+    }
+    50% { 
+      opacity: 1; 
+      transform: scale(1.2);
+    }
+  }
+
+  /* 增强的按钮悬浮效果 */
+  .cosmic-button:hover {
+    transform: translateY(-2px) rotate(2deg);
+    box-shadow: 
+      0 10px 25px rgba(59, 130, 246, 0.3),
+      0 0 30px rgba(59, 130, 246, 0.2);
+  }
+
+  /* 卡片倾斜效果 */
+  .cosmic-card-tilt {
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+  }
+
+  .cosmic-card-tilt:hover {
+    transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
   }
 } 

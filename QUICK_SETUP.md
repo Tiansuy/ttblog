@@ -88,9 +88,124 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 创建用户点赞记录表 🆕
+CREATE TABLE IF NOT EXISTS public.user_post_likes (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID,
+  post_id UUID NOT NULL REFERENCES public.posts(id) ON DELETE CASCADE,
+  user_identifier TEXT, -- 用于未登录用户的标识（基于IP和浏览器指纹）
+  liked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, post_id),
+  UNIQUE(user_identifier, post_id)
+);
+
+-- 创建索引以提高查询性能
+CREATE INDEX IF NOT EXISTS idx_user_post_likes_user_id ON public.user_post_likes(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_post_likes_post_id ON public.user_post_likes(post_id);
+CREATE INDEX IF NOT EXISTS idx_user_post_likes_user_identifier ON public.user_post_likes(user_identifier);
+
+-- 启用 RLS
+ALTER TABLE public.user_post_likes ENABLE ROW LEVEL SECURITY;
+
+-- 创建 RLS 策略
+CREATE POLICY "Users can view all likes" ON public.user_post_likes
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can insert their own likes" ON public.user_post_likes
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id OR (auth.uid() IS NULL AND user_identifier IS NOT NULL)
+  );
+
+-- 创建检查用户是否已点赞的函数 🆕
+CREATE OR REPLACE FUNCTION check_user_liked_post(
+  post_slug TEXT,
+  p_user_id UUID DEFAULT NULL,
+  p_user_identifier TEXT DEFAULT NULL
+)
+RETURNS BOOLEAN AS $$
+DECLARE
+  post_uuid UUID;
+  like_exists BOOLEAN := FALSE;
+BEGIN
+  -- 获取文章ID
+  SELECT id INTO post_uuid FROM posts WHERE slug = post_slug AND status = 'published';
+  
+  IF post_uuid IS NULL THEN
+    RETURN FALSE;
+  END IF;
+  
+  -- 检查已登录用户的点赞记录
+  IF p_user_id IS NOT NULL THEN
+    SELECT EXISTS(
+      SELECT 1 FROM user_post_likes 
+      WHERE post_id = post_uuid AND user_id = p_user_id
+    ) INTO like_exists;
+  END IF;
+  
+  -- 如果已登录用户未点赞，检查未登录用户的点赞记录
+  IF NOT like_exists AND p_user_identifier IS NOT NULL THEN
+    SELECT EXISTS(
+      SELECT 1 FROM user_post_likes 
+      WHERE post_id = post_uuid AND user_identifier = p_user_identifier
+    ) INTO like_exists;
+  END IF;
+  
+  RETURN like_exists;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 创建安全的点赞函数 🆕
+CREATE OR REPLACE FUNCTION like_post(
+  post_slug TEXT,
+  p_user_id UUID DEFAULT NULL,
+  p_user_identifier TEXT DEFAULT NULL
+)
+RETURNS JSON AS $$
+DECLARE
+  post_uuid UUID;
+  like_exists BOOLEAN := FALSE;
+  new_like_count INTEGER;
+  result JSON;
+BEGIN
+  -- 获取文章ID
+  SELECT id INTO post_uuid FROM posts WHERE slug = post_slug AND status = 'published';
+  
+  IF post_uuid IS NULL THEN
+    RETURN json_build_object('success', false, 'message', 'Post not found');
+  END IF;
+  
+  -- 检查用户是否已经点赞
+  SELECT check_user_liked_post(post_slug, p_user_id, p_user_identifier) INTO like_exists;
+  
+  IF like_exists THEN
+    RETURN json_build_object('success', false, 'message', 'Already liked');
+  END IF;
+  
+  -- 插入点赞记录
+  INSERT INTO user_post_likes (user_id, post_id, user_identifier)
+  VALUES (p_user_id, post_uuid, p_user_identifier);
+  
+  -- 增加文章点赞数
+  UPDATE posts 
+  SET likes = likes + 1 
+  WHERE id = post_uuid
+  RETURNING likes INTO new_like_count;
+  
+  result := json_build_object(
+    'success', true, 
+    'message', 'Like added successfully',
+    'new_like_count', new_like_count
+  );
+  
+  RETURN result;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
 -- 授予权限
 GRANT EXECUTE ON FUNCTION increment_post_views(TEXT) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION increment_post_likes(TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION check_user_liked_post(TEXT, UUID, TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION like_post(TEXT, UUID, TEXT) TO anon, authenticated;
 ```
 
 ### 3. 初始化示例数据
@@ -134,18 +249,29 @@ console.log('SERVICE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '✅ 已设�
    - 检查 Supabase 项目是否暂停
    - 验证 API 密钥是否正确
 
+4. **点赞功能不工作** 🆕
+   - 确保已运行包含用户点赞记录表的完整 SQL 脚本
+   - 检查浏览器控制台是否有错误信息
+   - 验证 RLS 策略是否正确设置
+
 ## 📝 NPM Scripts
 
 - `npm run dev` - 启动开发服务器
 - `npm run db:init` - 初始化示例数据
 - `npm run db:reset` - 重置示例数据
-- `npm run build` - 构建生产版本
 
-## 🎉 完成！
+## 🆕 新功能: 文章点赞
 
-设置完成后，访问 [http://localhost:3000](http://localhost:3000) 查看您的博客！
+### 功能特性
+- ✅ **防重复点赞**: 每个用户只能对一篇文章点赞一次
+- ✅ **支持未登录用户**: 使用浏览器指纹识别未登录用户
+- ✅ **永久记录**: 点赞记录存储在数据库中，不会丢失
+- ✅ **实时更新**: 点赞后立即更新点赞数量
+- ✅ **状态显示**: 清楚显示用户是否已点赞
 
-您会看到 3 篇示例文章：
-- Next.js 15 和 Server Components 入门
-- 使用 Supabase 和 Next.js 构建博客
-- 使用 Next-Themes 实现暗色模式 
+### 使用方式
+1. 访问任意文章页面
+2. 滚动到文章底部
+3. 点击"点赞"按钮
+4. 点赞成功后按钮变为红色，显示"您已经点赞过了"
+5. 再次点击无效，防止重复点赞 

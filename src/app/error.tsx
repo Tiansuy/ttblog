@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ThemeToggle } from '@/components/theme-toggle'
+// import { ThemeToggle } from '@/components/theme-toggle'
 import { Home, RefreshCw, AlertTriangle } from 'lucide-react'
 
 export default function Error({
@@ -21,9 +21,9 @@ export default function Error({
   return (
     <div className="min-h-screen bg-background">
       {/* 简单的头部，包含主题切换 */}
-      <div className="absolute top-4 right-4">
+      {/* <div className="absolute top-4 right-4">
         <ThemeToggle />
-      </div>
+      </div> */}
       
       <div className="flex items-center justify-center min-h-screen p-4">
         <Card className="w-full max-w-md">

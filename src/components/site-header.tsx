@@ -6,10 +6,11 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/hooks/use-auth";
 import { isAdmin } from "@/lib/admin";
 import { signOut } from "@/lib/auth";
+import { useState, useEffect } from "react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
+// import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageToggle } from "@/components/language-toggle";
 import { Logo } from "@/components/logo";
 import {
@@ -23,6 +24,12 @@ import {
 export function SiteHeader() {
   const { t } = useTranslation();
   const { user, loading, isAuthenticated } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  // 防止hydration错误
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -32,143 +39,137 @@ export function SiteHeader() {
     }
   };
 
+  // 在hydration完成前，使用静态文本避免不匹配
+  const getNavText = (key: string, fallback: string) => {
+    return mounted ? t(key) : fallback;
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+    <header className="sticky top-0 z-50 w-full border-b border-blue-200/20 bg-gradient-to-r from-slate-900 via-blue-900 to-indigo-900 shadow-lg">
+      <div className="container flex h-16 items-center">
         <div className="mr-4 flex-shrink-0">
           <Logo />
         </div>
         <div className="flex flex-1 items-center justify-end">
-          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium mr-4">
+          <nav className="hidden md:flex items-center space-x-8 text-sm font-medium mr-6">
             <Link
               href="/"
-              className="transition-colors hover:text-foreground/80 text-foreground"
+              className="transition-all duration-300 hover:text-blue-300 text-blue-100 hover:scale-105 relative group"
             >
-              {t('site.home')}
+              <span className="relative z-10">{getNavText('site.home', '主控台')}</span>
+              <div className="absolute inset-0 bg-blue-400/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
             </Link>
             <Link
               href="/posts"
-              className="transition-colors hover:text-foreground/80 text-foreground"
+              className="transition-all duration-300 hover:text-blue-300 text-blue-100 hover:scale-105 relative group"
             >
-              {t('site.posts')}
+              <span className="relative z-10">{getNavText('site.posts', '任务日志')}</span>
+              <div className="absolute inset-0 bg-blue-400/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
             </Link>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="transition-colors hover:text-foreground/80 text-foreground">
-                  {t('site.about')}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem asChild>
-                  <Link href="/about">{t('site.aboutSite')}</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/about/me">{t('site.aboutMe')}</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Link
+              href="/about"
+              className="transition-all duration-300 hover:text-blue-300 text-blue-100 hover:scale-105 relative group"
+            >
+              <span className="relative z-10">{getNavText('site.aboutSite', '关于空间站')}</span>
+              <div className="absolute inset-0 bg-blue-400/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+            </Link>
+            <Link
+              href="/about/me"
+              className="transition-all duration-300 hover:text-blue-300 text-blue-100 hover:scale-105 relative group"
+            >
+              <span className="relative z-10">{getNavText('site.aboutMe', '关于我')}</span>
+              <div className="absolute inset-0 bg-blue-400/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
+            </Link>
+            {/* 管理员入口 - 桌面端 */}
             {isAuthenticated && isAdmin(user) && (
               <Link
                 href="/admin"
-                className="transition-colors hover:text-foreground/80 text-foreground"
+                className="transition-all duration-300 hover:text-blue-300 text-blue-100 hover:scale-105 relative group"
               >
-                {t('site.admin')}
+                <span className="relative z-10 flex items-center">
+                  <Shield className="mr-2 h-4 w-4" />
+                  {getNavText('site.admin', '控制中心')}
+                </span>
+                <div className="absolute inset-0 bg-blue-400/20 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300"></div>
               </Link>
             )}
           </nav>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-2">
             <LanguageToggle />
-            <ThemeToggle />
+            {/* <ThemeToggle /> */}
             
             {loading ? (
-              <div className="h-9 w-20 animate-pulse bg-muted rounded-md" />
+              <div className="h-9 w-20 animate-pulse bg-blue-800/30 rounded-md border border-blue-400/20" />
             ) : isAuthenticated ? (
-              <div className="hidden md:flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">
-                  {user?.email}
+              <div className="hidden md:flex items-center space-x-3">
+                <span className="text-sm text-blue-200 bg-blue-800/30 px-3 py-1.5 rounded-lg border border-blue-400/20">
+                  ✨ {user?.email}
                 </span>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleSignOut}
-                  className="flex items-center gap-1"
-                >
-                  <LogOut className="h-3 w-3" />
-                  {t('auth.logout')}
-                </Button>
               </div>
-            ) : (
-              <div className="hidden md:flex items-center space-x-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link href="/login">
-                    <LogIn className="h-3 w-3 mr-1" />
-                    {t('auth.login')}
-                  </Link>
-                </Button>
-              </div>
-            )}
+            ) : null}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="hover:bg-blue-800/50 text-blue-100 hover:text-blue-200 border border-blue-400/20 hover:border-blue-300/40 transition-all duration-300">
                   <Menu className="h-4 w-4" />
-                  <span className="sr-only">{t('common.moreOptions')}</span>
+                  <span className="sr-only">{getNavText('common.moreOptions', '更多选项')}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuContent align="end" className="w-[200px] bg-slate-900 border border-blue-400/20 shadow-xl shadow-blue-900/20">
                 <div className="md:hidden">
-                  <DropdownMenuItem asChild>
-                    <Link href="/">{t('site.home')}</Link>
+                  <DropdownMenuItem asChild className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
+                    <Link href="/">{getNavText('site.home', '主控台')}</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/posts">{t('site.posts')}</Link>
+                  <DropdownMenuItem asChild className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
+                    <Link href="/posts">{getNavText('site.posts', '任务日志')}</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/about">{t('site.aboutSite')}</Link>
+                  <DropdownMenuItem asChild className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
+                    <Link href="/about">{getNavText('site.aboutSite', '关于空间站')}</Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/about/me">{t('site.aboutMe')}</Link>
+                  <DropdownMenuItem asChild className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
+                    <Link href="/about/me">{getNavText('site.aboutMe', '关于我')}</Link>
                   </DropdownMenuItem>
                   
                   {isAuthenticated && isAdmin(user) && (
-                    <DropdownMenuItem asChild>
+                    <DropdownMenuItem asChild className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
                       <Link href="/admin">
                         <Shield className="mr-2 h-4 w-4" />
-                        {t('site.admin')}
+                        {getNavText('site.admin', '控制中心')}
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  
-                  <DropdownMenuSeparator />
-                  
-                  {isAuthenticated ? (
-                    <>
-                      <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                        {user?.email}
-                      </div>
-                      <DropdownMenuItem onClick={handleSignOut}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        {t('auth.logout')}
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuItem asChild>
-                      <Link href="/login">
-                        <LogIn className="mr-2 h-4 w-4" />
-                        {t('auth.login')}
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="bg-blue-400/20" />
                 </div>
                 
-                <DropdownMenuItem>
+                {/* 用户账户相关选项 */}
+                {isAuthenticated ? (
+                  <>
+                    <div className="px-2 py-1.5 text-sm text-blue-200 bg-blue-800/20 mx-1 rounded">
+                      <User className="mr-2 h-4 w-4 inline" />
+                      {user?.email}
+                    </div>
+                    <DropdownMenuItem onClick={handleSignOut} className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      {getNavText('auth.logout', '退出')}
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem asChild className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
+                    <Link href="/login">
+                      <LogIn className="mr-2 h-4 w-4" />
+                      {getNavText('auth.login', '登录')}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                
+                <DropdownMenuSeparator className="bg-blue-400/20" />
+                <DropdownMenuItem className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
                   <Settings className="mr-2 h-4 w-4" />
-                  <span>{t('common.settings')}</span>
+                  <span>{getNavText('common.settings', '设置')}</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="text-blue-100 hover:bg-blue-800/30 hover:text-blue-200">
                   <HelpCircle className="mr-2 h-4 w-4" />
-                  <span>{t('common.help')}</span>
+                  <span>{getNavText('common.help', '帮助')}</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
